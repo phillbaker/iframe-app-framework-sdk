@@ -43,10 +43,10 @@ module.exports = function (grunt) {
       },
       build: {
         options: {
-          export: 'ZAFClient'
+          export: 'IAFClient'
         },
         src: 'lib/**/*.js',
-        dest: 'build/zaf_sdk.js'
+        dest: 'build/iaf_sdk.js'
       },
       test: {
         options: {
@@ -63,7 +63,7 @@ module.exports = function (grunt) {
       },
       build: {
         files: {
-          'build/zaf_sdk.min.js': ['<%= gluejs.build.dest %>']
+          'build/iaf_sdk.min.js': ['<%= gluejs.build.dest %>']
         }
       }
     },

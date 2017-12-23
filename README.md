@@ -1,13 +1,11 @@
-*Use of this software is subject to important terms and conditions as set forth in the License file*
-
-Zendesk App Framework SDK
+Iframe App Framework SDK
 =========================
 
-[![Build Status](https://travis-ci.org/zendesk/zendesk_app_framework_sdk.svg?branch=master)](https://travis-ci.org/zendesk/zendesk_app_framework_sdk)
+[![Build Status](https://travis-ci.org//iframe-app-framework-sdk.svg?branch=master)](https://travis-ci.org//iframe-app-framework-sdk)
 
 ## What is it?
 
-The Zendesk App Framework (ZAF) SDK is a JavaScript library that simplifies cross-frame communication between iframed apps and [ZAF](http://developer.zendesk.com/documentation/apps/). See [App Framework v2](https://developer.zendesk.com/apps/docs/apps-v2/getting_started) to learn more.
+The Iframe App Framework (IAF) SDK is a JavaScript library that simplifies cross-frame communication between iframe'ed apps and host applications. Based on work done by [Zendesk](https://github.com/zendesk/zendesk_app_framework_sdk).
 
 ## For development...
 
@@ -25,7 +23,9 @@ Then run:
 
 ## Copyright and license
 
-Copyright 2014 Zendesk
+Use of this software is subject to important terms and conditions as set forth in the License file.
+
+Portions of this code Copyright 2014 Zendesk
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
 

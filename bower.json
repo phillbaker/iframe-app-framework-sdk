@@ -1,14 +1,11 @@
 {
-  "name": "zendesk_app_framework_sdk",
-  "version": "2.0.9",
-  "homepage": "http://developer.zendesk.com",
-  "authors": [
-    "Zendesk <support@zendesk.com>"
-  ],
-  "description": "The Zendesk App Framework (ZAF) SDK is a JavaScript library that simplifies cross-frame communication between iframed apps and ZAF.",
-  "main": "build/zaf_sdk.js",
+  "name": "iframe-app-framework-sdk",
+  "version": "0.1.0",
+  "authors": [],
+  "description": "The Iframe App Framework SDK is a JavaScript library that simplifies cross-frame communication between iframed apps and host apps.",
+  "main": "build/iaf_sdk.js",
   "keywords": [
-    "zendesk",
+    "iframe",
     "apps",
     "framework",
     "sdk"

@@ -2,7 +2,7 @@ describe('Client', function() {
   var Client  = require('client'),
       Promise = window.Promise || require('../vendor/native-promise-only'),
       sandbox = sinon.sandbox.create(),
-      origin  = 'https://foo.zendesk.com',
+      origin  = 'https://foo.example.com',
       appGuid = 'ABC123',
       version = require('version'),
       subject,
@@ -25,7 +25,7 @@ describe('Client', function() {
       origin: client._origin,
       source: client._source,
       data: {
-        key: 'zaf.' + name,
+        key: 'iaf.' + name,
         message: data,
         instanceGuid: client._instanceGuid
       }
@@ -132,7 +132,7 @@ describe('Client', function() {
 
         evt = {
           data: {
-            key: 'zaf.hello',
+            key: 'iaf.hello',
             message: message
           }
         };
@@ -159,7 +159,7 @@ describe('Client', function() {
           });
         });
 
-        describe('when the message is not from zaf', function() {
+        describe('when the message is not from iaf', function() {
           it("does not pass the message to the client", function() {
             evt.data.key = 'hello';
             window.addEventListener.callArgWith(1, evt);
@@ -179,7 +179,7 @@ describe('Client', function() {
               expect(handler).to.have.been.called;
               expect(source.postMessage).to.have.been.calledWith(
                 { appGuid: "ABC123", key: "iframe.reply:hello" },
-                'https://foo.zendesk.com'
+                'https://foo.example.com'
               );
             });
           });
@@ -195,7 +195,7 @@ describe('Client', function() {
                 expect(handler).to.have.been.called;
                 expect(source.postMessage).to.have.been.calledWith(
                   { appGuid: "ABC123", error: { msg: "Error" }, key: "iframe.reply:hello" },
-                  'https://foo.zendesk.com'
+                  'https://foo.example.com'
                 );
               });
             });
@@ -212,7 +212,7 @@ describe('Client', function() {
                 expect(handler).to.have.been.called;
                 expect(source.postMessage).to.have.been.calledWith(
                   { appGuid: "ABC123", error: { msg: false }, key: "iframe.reply:hello" },
-                  'https://foo.zendesk.com'
+                  'https://foo.example.com'
                 );
               });
             });
@@ -229,7 +229,7 @@ describe('Client', function() {
                 expect(handler).to.have.been.called;
                 expect(source.postMessage).to.have.been.calledWith(
                   { appGuid: "ABC123", error: { msg: 'Oh no! [object Object]' }, key: "iframe.reply:hello" },
-                  'https://foo.zendesk.com'
+                  'https://foo.example.com'
                 );
               });
             });
@@ -246,7 +246,7 @@ describe('Client', function() {
                 expect(handler).to.have.been.called;
                 expect(source.postMessage).to.have.been.calledWith(
                   { appGuid: "ABC123", error: { msg: 'The third party API is broken.' }, key: "iframe.reply:hello" },
-                  'https://foo.zendesk.com'
+                  'https://foo.example.com'
                 );
               });
             });
@@ -405,7 +405,7 @@ describe('Client', function() {
         requestsCount++;
       });
 
-      it('asks ZAF to make a request', function() {
+      it('asks IAF to make a request', function() {
         expect(subject.postMessage).to.have.been.calledWithMatch(/request:\d+/, { url: '/api/v2/tickets.json' });
       });
 

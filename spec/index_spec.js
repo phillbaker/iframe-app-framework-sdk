@@ -1,6 +1,6 @@
-describe('ZAFClient', function() {
+describe('IAFClient', function() {
   var sandbox   = sinon.sandbox.create(),
-      ZAFClient = require('index'),
+      IAFClient = require('index'),
       Client    = require('client'),
       Utils     = require('utils');
 
@@ -27,7 +27,7 @@ describe('ZAFClient', function() {
 
         beforeEach(function() {
           sandbox.spy(Client.prototype, 'on');
-          ZAFClient.init(callback);
+          IAFClient.init(callback);
         });
 
         it('binds the callback to app.registered', function() {
@@ -43,7 +43,7 @@ describe('ZAFClient', function() {
     describe('given origin and app_guid are missing', function() {
       it("won't create a Client instance", function() {
         Utils.queryParameters.returns({});
-        expect(ZAFClient.init()).to.equal(false);
+        expect(IAFClient.init()).to.equal(false);
       });
     });
   });
