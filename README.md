@@ -7,19 +7,26 @@ Iframe App Framework SDK
 
 The Iframe App Framework (IAF) SDK is a JavaScript library that simplifies cross-frame communication between iframe'ed apps and host applications. Based on work done by [Zendesk](https://github.com/zendesk/zendesk_app_framework_sdk).
 
-## For development...
+## Development
 
 You will need:
 
 * [Node.js](http://nodejs.org/)
 * [npm](https://www.npmjs.org/)
-* [Grunt](http://gruntjs.com/) - `npm install -g grunt-cli`
 
 Then run:
 
 `npm install` - Install dependencies
 
-`grunt server` - Serve the [public](./public) directory at [http://localhost:9001](http://localhost:9001)
+`npm run server` - Serve the [public](./public) directory at [http://localhost:9001](http://localhost:9001)
+
+## Building for distribution
+
+Run
+
+```
+grunt run build
+```
 
 ## Copyright and license
 
