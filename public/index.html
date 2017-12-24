@@ -6,7 +6,145 @@
 </head>
 <body>
   <script src="https://cdn.jsdelivr.net/g/jquery@2.2.3,underscorejs@1.8.3"></script>
-  <script src="http://localhost:5678/framework.js"></script>
-  <iframe src="iframe.html?origin=http://localhost:9001&amp;app_guid=1234"></iframe>
+  <script>
+    // src="http://localhost:5678/framework.js"
+
+    var IAF_EVENT_PREFIX = 'iaf.';
+    // core events
+    // app.registered
+    // app.activated
+    // app.deactivated
+    // instance.created
+    // context.updated
+    // iframe.handshake
+    // iframe.reply
+    // iframe.on
+    // iframe.off
+    // iframe.trigger
+
+    var IframeApp = function(config) {
+      this.config = config;
+    }
+    IframeApp.prototype = {
+      send: function(key, data) {
+        var message = JSON.stringify({
+          // client's
+          // key: name,
+          // message: data,
+          // appId: this._appId,
+          // instanceId: this._instanceId
+
+          // id:
+          key: IAF_EVENT_PREFIX + key,
+          // needsReply:
+          message: data,
+        });
+        // console.log('host sending', message);
+        this.element.contentWindow.postMessage(message, 'http://localhost:9001');
+      },
+      install: function(options) {
+        this.element = options.element;
+      },
+    };
+
+    var IframeApps = {
+      apps: {},
+      defineApp: function(config) {
+        return new IframeApp(config);
+      },
+      sortAppsForSite: function() {},
+      receiveMessage: function(event) {
+        // TODO if (!isValidEvent(client, event)) { return; }
+
+        var data = event.data;
+
+        if (!data) { return; }
+
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(event.data);
+          } catch (e) {
+            return e;
+          }
+        }
+
+        // console.log('host received: ', data);
+      },
+      trigger: function(name, data) {
+        // subscribe to events from the iframes
+        window.addEventListener('message', IframeApps.receiveMessage, false);
+
+        if (name === 'ready') {
+          // boot all apps
+          Object.values(IframeApps.apps).forEach((app) => {
+            app.element.addEventListener('load', function(event) {
+              app.send('app.registered', {
+                data: {
+                  metadata: {},
+                  context: {
+                    instanceId: "7712c893-bec7-4e00-9db0-87fbb0c12914",
+                    product: "support",
+                    account: {
+                      subdomain: "mondocam"
+                    },
+                    location: 'ticket_sidebar',
+                    resourceFooId: 1234,
+                  },
+                }
+              });
+              app.send('context.updated', { user: { id: 'def456' } });
+            });
+          });
+        } else {
+          Object.values(IframeApps.apps).forEach((app) => {
+            app.send(name, data);
+          });
+        }
+      },
+    };
+  </script>
+
+  <script>
+    $(document).ready(function() {
+      // https://github.com/zendesk/zendesk_apps_support/blob/master/spec/fixtures/iframe_app.js
+      // Define an app for usage in the host application
+      var app = IframeApps.defineApp({
+        experiments: {},
+        // location -> app_name -> widget_name -> url
+        location: { foo: { sidebar: { url: "http://localhost:9001" }}},
+        signedUrls: false,
+        // noTemplate
+        // singleInstall
+        manifest: {
+          appName: "ABC",
+          appVersion: "1.0.0",
+          locationIcons: {},
+          assetUrlPrefix: "http://localhost:4567/0/",
+          appClassName: "app-0",
+          author: {
+            name: "John Smith",
+            email: "john@example.com"
+          },
+          frameworkVersion: "1.0"
+        },
+      });
+      IframeApps.apps["abc123"] = app;
+
+      // (function() {
+        // <% appsjs.each do |appjs| %>
+        //   <%= appjs %>
+        // <% end %>
+
+      if (IframeApps.apps["abc123"]) {
+        IframeApps.apps["abc123"].install({ element: $('#app-abc123').get(0) });
+      }
+
+      IframeApps.sortAppsForSite("sidebar", ["abc123"]);
+      // }());
+      IframeApps.trigger && IframeApps.trigger('ready');
+    });
+  </script>
+  <!-- sandbox="" -->
+  <iframe id="app-abc123" src="iframe.html?origin=http://localhost:9001&amp;app_id=abc-1234"></iframe>
 </body>
 </html>

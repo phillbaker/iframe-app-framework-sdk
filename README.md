@@ -22,7 +22,7 @@ Then run:
 
 ## Building for distribution
 
-Run
+Run:
 
 ```
 grunt run build

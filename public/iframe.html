@@ -7,6 +7,7 @@
 <body>
   <script type="text/javascript" src="assets/iaf_sdk.js"></script>
   <script>
+    // console.log('iframe <script>');
     var app = window.IAFClient.init(function(context) {
       console.log('Hi', context);
     });
@@ -19,23 +20,23 @@
 
     app.postMessage('helloApp', { awesome: true });
 
-    app.request('/api/v2/tickets.json').then(
-      function(args) {
-        console.log('success:', args);
-      },
-      function(args) {
-        console.log('fail:', args);
-      }
-    );
+    // app.request('/api/v2/tickets.json').then(
+    //   function(args) {
+    //     console.log('success:', args);
+    //   },
+    //   function(args) {
+    //     console.log('fail:', args);
+    //   }
+    // );
 
-    app.get('ticket.subject').then(
-      function(args) {
-        console.log('success:', args);
-      },
-      function(args) {
-        console.log('fail:', args);
-      }
-    );
+    // app.get('ticket.subject').then(
+    //   function(args) {
+    //     console.log('success:', args);
+    //   },
+    //   function(args) {
+    //     console.log('fail:', args);
+    //   }
+    // );
   </script>
 </body>
 </html>
