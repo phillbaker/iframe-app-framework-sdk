@@ -11,14 +11,26 @@
     var app = window.IAFClient.init(function(context) {
       console.log('Hi', context);
     });
+    // If we had multiple instances on the same page
+    // var otherClient = client.instance('9e012b1f-1397-484e-8810-c444b8085e55');
 
     app.on('helloIframe', function(data) {
-      if (data.omg) {
-        console.log('app says hello');
-      }
+      console.log('host app says hello');
     });
 
-    app.postMessage('helloApp', { awesome: true });
+    app.postMessage('helloHost', { awesome: true });
+
+    app.get('visible').then(
+      function(args) {
+        console.log('success:', args);
+      },
+      function(args) {
+        console.log('fail:', args);
+      }
+    );
+
+    // client.invoke('notify', message[, options]) // options => kind, duration, sticky
+    app.invoke('notify', 'hello world', { duration: 1000, sticky: true });
 
     // app.request('/api/v2/tickets.json').then(
     //   function(args) {
@@ -28,15 +40,7 @@
     //     console.log('fail:', args);
     //   }
     // );
-
-    // app.get('ticket.subject').then(
-    //   function(args) {
-    //     console.log('success:', args);
-    //   },
-    //   function(args) {
-    //     console.log('fail:', args);
-    //   }
-    // );
   </script>
+  iframe
 </body>
 </html>

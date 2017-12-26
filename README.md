@@ -7,6 +7,39 @@ Iframe App Framework SDK
 
 The Iframe App Framework (IAF) SDK is a JavaScript library that simplifies cross-frame communication between iframe'ed apps and host applications. Based on work done by [Zendesk](https://github.com/zendesk/zendesk_app_framework_sdk).
 
+## How to use this
+
+This library only provides the client (embedded application) library. The hosting (parent) application needs to integrate functions to complete the interactions of passing data back and forth between the parent and client apps. These are generally all clientside functionality and since clientside frameworks and each application differ, that exercise is specific to the parent application.
+
+### `get`
+
+Pull data from the parent application's state asynchronously.
+
+### `invoke`
+
+Call a given method with parameters to invoke an action in the parent application.
+
+### Emit events
+
+#### Emit blocking events
+
+https://developer.zendesk.com/apps/docs/apps-v2/using_sdk#hook-events
+
+### `request` - avoiding secret keys
+
+In order to avoid having to bundle secret keys into clientside code (not secure), calls can be "proxied" to the host app's API by sending them through the parent application's window context, which, presumably, has access to the API via the same-origin-policy and existing authentication methods.
+
+### Serverside feature
+
+There are several features that also require server side integration. This includes:
+* https://developer.zendesk.com/apps/docs/apps-v2/using_sdk#using-secure-settings
+
+## Iframe App boot process
+
+1. `<iframe>` inserted into page source and rendered by host app, `load` event handler created for iframe.
+2. Each `<iframe>`'s app loads content and issue's the `iframe.handshake` event to the host
+3. Host app receives `iframe.handshake` from each, registers app with given instance id and issues `app.registered` and `context.updated` events.
+
 ## Development
 
 You will need:
@@ -27,6 +60,12 @@ Run:
 ```
 grunt run build
 ```
+
+## References
+
+* https://javascript.info/cross-window-communication
+* https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
+* http://pbojinov.github.io/iframe-communication/
 
 ## Copyright and license
 

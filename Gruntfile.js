@@ -91,12 +91,18 @@ module.exports = function (grunt) {
       }
     },
     connect: {
-      server: {
+      host: {
         options: {
           port: 9001,
           base: 'public'
         }
-      }
+      },
+      app: {
+        options: {
+          port: 5678,
+          base: 'public'
+        }
+      },
     },
     watch: {
       gruntfile: {

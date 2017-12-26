@@ -7,8 +7,6 @@
 <body>
   <script src="https://cdn.jsdelivr.net/g/jquery@2.2.3,underscorejs@1.8.3"></script>
   <script>
-    // src="http://localhost:5678/framework.js"
-
     var IAF_EVENT_PREFIX = 'iaf.';
     // core events
     // app.registered
@@ -16,31 +14,66 @@
     // app.deactivated
     // instance.created
     // context.updated
-    // iframe.handshake
-    // iframe.reply
-    // iframe.on
-    // iframe.off
-    // iframe.trigger
+
+
+    var state = {
+      currentAccount: {
+        id: 'def456',
+        timeZone: {
+          ianaName: 'America/Los_Angeles',
+          offset: 4,
+        }
+      },
+      currentUser: {
+        id: 'fgh789',
+        name: 'John Doe',
+        email: 'jdoe@example.com',
+      },
+      apps: {
+        'abc123': {
+          id: 'abc123',
+        }
+      }
+    };
+
+    // invoking actions
+    // hide
+    // show
+    // notify
+    // routeTo
 
     var IframeApp = function(config) {
-      this.config = config;
+      this.manifest = config.manifest;
+      this.experiments = config.experiments;
+      this.location = config.location;
+      this.signedUrls = config.signedUrls;
+      this.instances = {};
+      this.visible = true;
     }
     IframeApp.prototype = {
-      send: function(key, data) {
-        var message = JSON.stringify({
-          // client's
-          // key: name,
-          // message: data,
-          // appId: this._appId,
-          // instanceId: this._instanceId
+      send: function(key, data, parameters) {
+        var messageId = parameters && parameters.messageId;
+        var instanceId = parameters && parameters.instanceId;
+        var needsReply = parameters && parameters.needsReply;
+        var type = parameters && parameters.type;
 
-          // id:
-          key: IAF_EVENT_PREFIX + key,
-          // needsReply:
-          message: data,
+        var instances = instanceId ? [this.instances[instanceId]] : Object.keys(this.instances);
+
+        instances.forEach((instanceId) => {
+          var message = {
+            // client's info
+            id: messageId,
+            appId: this.appId,
+            instanceId: this.instanceId,
+            key: IAF_EVENT_PREFIX + key,
+            needsReply: needsReply,
+          };
+          message[type || 'message'] = data;
+          var origin = 'http://localhost:5678';
+          // console.log('host sending', message, 'to', origin, this.element.contentWindow);
+          var stringified = JSON.stringify(message);
+          this.element.contentWindow.postMessage(stringified, origin);
         });
-        // console.log('host sending', message);
-        this.element.contentWindow.postMessage(message, 'http://localhost:9001');
       },
       install: function(options) {
         this.element = options.element;
@@ -68,33 +101,73 @@
           }
         }
 
-        // console.log('host received: ', data);
+        if (data.request === 'get') {
+          var responses = data.params.map((param) => {
+            // get state:
+            // currentAccount
+            // currentUser
+            // visible
+            // instances (of apps)
+            // TODO
+          });
+          // TODO pass back errors as well
+          IframeApps.replyToMessage(data.appId, data.instanceId, data.id, 'get', responses);
+        } else if (data.key === 'iframe.handshake') {
+          IframeApps.registerApp(data);
+        } else if (data.request === 'invoke') {
+          Object.keys(data.params).forEach((action) => {
+            var params = data.params[action];
+            // action(params)
+          });
+          IframeApps.replyToMessage(data.appId, data.instanceId, data.id, 'invoke', []);
+        } else {
+          console.log('host received: ', data);
+        }
+      },
+      replyToMessage: function(appId, instanceId, messageId, key, data) {
+        var app = IframeApps.apps[appId];
+        app.send(key, data, { instanceId: instanceId, messageId: messageId, type: 'result' });
+      },
+      registerApp: function(messageData) {
+        // check to see if this app is allowed on this page // TODO probably need signed jwts to prevent impersonation?
+        var app = IframeApps.apps[messageData.appId];
+        if (!app) {
+          throw new Error('Unknown app: ' + messageData.appId)
+        }
+
+        app.instances[messageData.instanceId] = {
+          appId: messageData.appId,
+          instanceId: messageData.instanceId,
+        };
+
+        app.send('app.registered', {
+          data: {
+            metadata: {
+              // "appId": 123,
+              // "name": "My App",
+              // "installationId": 12345,
+              // "version": "1.0",
+              // "settings": {
+              //   "title": "My Installation Name"
+              // }
+            },
+            context: {
+              instanceId: app.instanceId,
+              product: "foo_product",
+              account: state.currentAccount,
+              location: 'sidebar',
+              resourceFooId: 1234,
+            },
+          }
+        });
+        app.send('context.updated', { user: state.currentUser });
       },
       trigger: function(name, data) {
         // subscribe to events from the iframes
         window.addEventListener('message', IframeApps.receiveMessage, false);
 
         if (name === 'ready') {
-          // boot all apps
-          Object.values(IframeApps.apps).forEach((app) => {
-            app.element.addEventListener('load', function(event) {
-              app.send('app.registered', {
-                data: {
-                  metadata: {},
-                  context: {
-                    instanceId: "7712c893-bec7-4e00-9db0-87fbb0c12914",
-                    product: "support",
-                    account: {
-                      subdomain: "mondocam"
-                    },
-                    location: 'ticket_sidebar',
-                    resourceFooId: 1234,
-                  },
-                }
-              });
-              app.send('context.updated', { user: { id: 'def456' } });
-            });
-          });
+          // do anything before apps self register
         } else {
           Object.values(IframeApps.apps).forEach((app) => {
             app.send(name, data);
@@ -106,15 +179,12 @@
 
   <script>
     $(document).ready(function() {
-      // https://github.com/zendesk/zendesk_apps_support/blob/master/spec/fixtures/iframe_app.js
       // Define an app for usage in the host application
       var app = IframeApps.defineApp({
         experiments: {},
         // location -> app_name -> widget_name -> url
-        location: { foo: { sidebar: { url: "http://localhost:9001" }}},
+        location: { foo_product: { sidebar: { url: "http://localhost:5678/iframe.html" }}},
         signedUrls: false,
-        // noTemplate
-        // singleInstall
         manifest: {
           appName: "ABC",
           appVersion: "1.0.0",
@@ -130,21 +200,19 @@
       });
       IframeApps.apps["abc123"] = app;
 
-      // (function() {
-        // <% appsjs.each do |appjs| %>
-        //   <%= appjs %>
-        // <% end %>
-
       if (IframeApps.apps["abc123"]) {
         IframeApps.apps["abc123"].install({ element: $('#app-abc123').get(0) });
       }
 
       IframeApps.sortAppsForSite("sidebar", ["abc123"]);
-      // }());
       IframeApps.trigger && IframeApps.trigger('ready');
     });
   </script>
-  <!-- sandbox="" -->
-  <iframe id="app-abc123" src="iframe.html?origin=http://localhost:9001&amp;app_id=abc-1234"></iframe>
+  foo_product
+  <div class="sidebar">
+    <iframe id="app-abc123" src="http://localhost:5678/iframe.html?origin=http://localhost:9001&amp;app_id=abc123" sandbox="allow-scripts allow-forms allow-same-origin" ></iframe>
+  </div>
+
+  <button onclick="IframeApps.trigger('helloIframe')">Say hello to iframe.</button>
 </body>
 </html>
